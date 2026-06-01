@@ -347,27 +347,10 @@ function showTab(id, btn) {
   btn.classList.add('active');
 }
 
-// ── LOGO (base64 embedded) ──
-async function loadLogo() {
-  try {
-    const data = await window.fs.readFile('image0.jpeg');
-    const bytes = new Uint8Array(data);
-    let bin = '';
-    for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-    const b64 = btoa(bin);
-    const url = 'data:image/jpeg;base64,' + b64;
-    document.getElementById('logoImg').src = url;
-    document.getElementById('socialLogo').src = url;
-    // Salva per uso esterno
-    window._IBL_LOGO = url;
-  } catch(e) {
-    // fallback colore
-    ['logoImg','socialLogo'].forEach(id => {
-      const el = document.getElementById(id);
-      el.style.display = 'none';
-      el.parentElement.style.background = '#00338D';
-    });
-  }
+// ── LOGO ──
+function loadLogo() {
+  document.getElementById('logoImg').src = 'logo.png';
+  document.getElementById('socialLogo').src = 'logo.png';
 }
 
 // ── CLOCK ──
