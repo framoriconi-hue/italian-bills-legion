@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Italian Bills Legion</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0a0a0a;display:flex;justify-content:center;min-height:100vh;padding:20px 10px}
+.phone{width:375px;background:#f5f5f7;border-radius:44px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,0.6);border:6px solid #1a1a1a}
+.status-bar{background:#00338D;height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:12px;color:rgba(255,255,255,0.8)}
+.header{background:linear-gradient(180deg,#00338D 0%,#002070 100%);padding:16px 16px 0;display:flex;flex-direction:column;align-items:center;gap:8px}
+.logo-wrap{width:72px;height:72px;border-radius:50%;overflow:hidden;border:3px solid rgba(255,255,255,0.3)}
+.logo-wrap img{width:100%;height:100%;object-fit:cover}
+.header-text h1{color:#fff;font-size:17px;font-weight:700;text-align:center}
+.header-text p{color:rgba(255,255,255,0.65);font-size:11px;text-align:center;margin-top:2px}
+.tab-bar{background:#00338D;display:flex;border-top:1px solid rgba(255,255,255,0.1);margin-top:12px}
+.tab-btn{flex:1;background:none;border:none;color:rgba(255,255,255,0.5);font-size:9px;padding:8px 2px 10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:color 0.2s;font-family:inherit}
+.tab-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tab-btn.active{color:#fff}
+.tab-btn .dot{width:4px;height:4px;background:#C60C30;border-radius:50%;display:none}
+.tab-btn.active .dot{display:block}
+.scroll-area{height:520px;overflow-y:auto;background:#f5f5f7}
+.scroll-area::-webkit-scrollbar{display:none}
+.section{display:none}
+.section.active{display:block}
+
+/* CALENDAR */
+.cal-top{background:#C60C30;padding:10px 16px;display:flex;justify-content:space-between;align-items:center}
+.cal-top span{color:#fff;font-size:12px;font-weight:600}
+.refresh-btn{background:rgba(255,255,255,0.2);border:none;color:#fff;font-size:10px;padding:4px 8px;border-radius:10px;cursor:pointer;font-family:inherit}
+.game-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:0.5px solid #e0e0e0;background:#fff}
+.week-tag{background:#e8eef8;color:#00338D;font-size:10px;font-weight:600;padding:3px 7px;border-radius:8px;min-width:38px;text-align:center;flex-shrink:0}
+.game-body{flex:1;min-width:0}
+.opp{font-size:13px;font-weight:600;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{font-size:10px;color:#666;margin-top:2px;display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.badge{font-size:9px;padding:1px 5px;border-radius:6px;font-weight:600;white-space:nowrap}
+.b-home{background:#00338D;color:#fff}
+.b-away{background:#eee;color:#555}
+.b-new{background:#C60C30;color:#fff}
+.b-playoff{background:#b8860b;color:#fff}
+.time-col{font-size:12px;font-weight:700;color:#00338D;white-space:nowrap;flex-shrink:0;min-width:36px;text-align:right}
+.time-tbd{font-size:11px;color:#999;text-align:right;min-width:36px}
+.bye-row{display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:0.5px solid #e0e0e0;background:#f9f9f9}
+.bye-text{font-size:11px;color:#aaa;font-style:italic}
+.section-divider{background:#C60C30;padding:7px 14px;font-size:11px;font-weight:700;color:#fff}
+.last-updated{font-size:10px;color:#aaa;text-align:center;padding:10px;background:#fff}
+
+/* STANDINGS */
+.div-hdr{background:#00338D;padding:8px 14px;font-size:11px;font-weight:700;color:#fff}
+.season-notice{background:#fff8e1;border-left:3px solid #f59e0b;margin:12px;padding:10px 12px;border-radius:8px;font-size:12px;color:#78350f}
+.season-notice strong{display:block;margin-bottom:2px;font-size:13px}
+.std-table{width:100%;border-collapse:collapse;background:#fff}
+.std-table th{font-size:10px;color:#888;font-weight:500;padding:6px 14px;border-bottom:0.5px solid #e0e0e0;text-align:left}
+.std-table th:not(:first-child){text-align:center}
+.std-table td{padding:9px 14px;border-bottom:0.5px solid #f0f0f0;font-size:12px;color:#111}
+.std-table td:not(:first-child){text-align:center;color:#444}
+.bills-tr{background:#e8eef8}
+.bills-tr td:first-child{font-weight:700;color:#00338D}
+.team-cell{display:flex;align-items:center;gap:6px}
+.tdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* STATS */
+.stats-top{background:#C60C30;padding:10px 16px;display:flex;justify-content:space-between;align-items:center}
+.stats-top span{color:#fff;font-size:12px;font-weight:600}
+.stats-notice{background:#fff8e1;border-left:3px solid #f59e0b;margin:12px;padding:10px 12px;border-radius:8px;font-size:11px;color:#78350f}
+.stats-block{background:#fff;margin:0;padding:12px 14px;border-bottom:0.5px solid #e8e8e8}
+.stats-block h3{font-size:12px;font-weight:700;color:#00338D;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat-item{background:#f5f5f7;border-radius:10px;padding:10px 12px}
+.stat-val{font-size:20px;font-weight:700;color:#111}
+.stat-lbl{font-size:10px;color:#888;margin-top:2px}
+.stat-rank{font-size:9px;color:#C60C30;font-weight:600;margin-top:1px}
+.player-card{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid #f0f0f0}
+.player-card:last-child{border-bottom:none}
+.player-num{width:32px;height:32px;border-radius:50%;background:#00338D;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.player-info{flex:1}
+.player-name{font-size:13px;font-weight:600;color:#111}
+.player-pos{font-size:10px;color:#888;margin-top:1px}
+.player-stats{font-size:11px;color:#444;margin-top:3px}
+.loading-stats{padding:30px;text-align:center;color:#aaa;font-size:13px}
+
+/* SOCIAL */
+.social-wrap{padding:20px 16px}
+.social-hero{text-align:center;padding:8px 0 20px}
+.s-logo{width:88px;height:88px;border-radius:50%;overflow:hidden;border:4px solid #00338D;margin:0 auto 10px}
+.s-logo img{width:100%;height:100%;object-fit:cover}
+.s-title{font-size:17px;font-weight:700;color:#111}
+.s-sub{font-size:12px;color:#666;margin-top:3px}
+.s-btn{display:flex;align-items:center;gap:12px;background:#fff;border:0.5px solid #e0e0e0;border-radius:14px;padding:14px 16px;margin-bottom:10px;cursor:pointer;text-decoration:none;transition:background 0.15s}
+.s-btn:hover{background:#f0f0f0}
+.s-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.meta-icon{background:linear-gradient(135deg,#0082FB,#0064D2)}
+.ig-icon{background:radial-gradient(circle at 30% 107%,#fdf497 0%,#fd5949 45%,#d6249f 60%,#285AEB 90%)}
+.s-icon svg{width:22px;height:22px;fill:#fff}
+.s-label{font-size:14px;font-weight:600;color:#111}
+.s-handle{font-size:11px;color:#666;margin-top:1px}
+.s-arrow svg{width:16px;height:16px;stroke:#bbb;fill:none;stroke-width:2;margin-left:auto;display:block}
+.gobills{margin-top:20px;background:#00338D;border-radius:14px;padding:14px;text-align:center;color:#fff;font-size:13px;font-weight:600}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="status-bar">
+    <span id="clock">--:--</span>
+    <span style="font-size:10px;opacity:0.7">Italian Bills Legion</span>
+    <span>●●●</span>
+  </div>
+  <div class="header">
+    <div class="logo-wrap"><img id="logoImg" src="" alt="IBL"></div>
+    <div class="header-text">
+      <h1>Italian Bills Legion</h1>
+      <p>Tifosi dei Buffalo Bills in Italia 🇮🇹</p>
+    </div>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="showTab('cal',this)">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Calendario<span class="dot"></span>
+      </button>
+      <button class="tab-btn" onclick="showTab('standings',this)">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Classifica<span class="dot"></span>
+      </button>
+      <button class="tab-btn" onclick="showTab('stats',this)">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        Statistiche<span class="dot"></span>
+      </button>
+      <button class="tab-btn" onclick="showTab('social',this)">
+        <svg viewBox="0 0 24 24"><path d="M17 2a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM7 10a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM17 18a2 2 0 1 1 0 4 2 2 0 0 1 0-4z"/><line x1="15.18" y1="5.22" x2="8.82" y2="10.78"/><line x1="8.82" y1="13.22" x2="15.18" y2="18.78"/></svg>
+        Social<span class="dot"></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="scroll-area">
+
+    <!-- CALENDARIO -->
+    <div id="tab-cal" class="section active">
+      <div class="cal-top">
+        <span>Stagione NFL 2026–27 • ora italiana</span>
+        <button class="refresh-btn" onclick="renderSchedule()">↻ Aggiorna</button>
+      </div>
+      <div id="schedule-container"></div>
+      <div class="last-updated" id="last-updated"></div>
+    </div>
+
+    <!-- CLASSIFICA -->
+    <div id="tab-standings" class="section">
+      <div id="standings-container"></div>
+    </div>
+
+    <!-- STATISTICHE -->
+    <div id="tab-stats" class="section">
+      <div class="stats-top">
+        <span>Buffalo Bills • Stats 2026</span>
+        <button class="refresh-btn" onclick="loadStats()">↻ Aggiorna</button>
+      </div>
+      <div id="stats-container"><div class="loading-stats">Caricamento statistiche...</div></div>
+    </div>
+
+    <!-- SOCIAL -->
+    <div id="tab-social" class="section">
+      <div class="social-wrap">
+        <div class="social-hero">
+          <div class="s-logo"><img id="socialLogo" src="" alt="IBL"></div>
+          <div class="s-title">Italian Bills Legion</div>
+          <div class="s-sub">La community italiana dei tifosi Buffalo Bills</div>
+        </div>
+        <a class="s-btn" href="https://www.facebook.com/italianbillslegionfanclub?locale=it_IT" target="_blank">
+          <div class="s-icon meta-icon">
+            <!-- Meta logo -->
+            <svg viewBox="0 0 36 36" fill="white" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 3C9.716 3 3 9.716 3 18s6.716 15 15 15 15-6.716 15-15S26.284 3 18 3zm0 2c7.18 0 13 5.82 13 13 0 6.54-4.822 11.963-11.13 12.854V22.5h3.476l.66-4.305H19.87v-2.796c0-1.177.577-2.325 2.426-2.325h1.877v-3.664s-1.703-.291-3.332-.291c-3.4 0-5.623 2.061-5.623 5.793V18.2h-3.78V22.5h3.78v8.354C9.822 29.963 5 24.54 5 18 5 10.82 10.82 5 18 5z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="s-label">Facebook</div>
+            <div class="s-handle">Italian Bills Legion Fan Club</div>
+          </div>
+          <span class="s-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </a>
+        <a class="s-btn" href="https://www.instagram.com/italianbillslegionfanclub/" target="_blank">
+          <div class="s-icon ig-icon">
+            <svg viewBox="0 0 24 24" fill="white"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="white" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="white" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1.2" fill="white"/></svg>
+          </div>
+          <div>
+            <div class="s-label">Instagram</div>
+            <div class="s-handle">@italianbillslegionfanclub</div>
+          </div>
+          <span class="s-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </a>
+        <div class="gobills">🏈 Go Bills! Let's go Buffalo! 🤘</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── SCHEDULE ──
+const ET_OFFSET = 6;
+function etToIt(t) {
+  if (!t) return null;
+  const [h,m] = t.split(':').map(Number);
+  let hi = h + ET_OFFSET;
+  if (hi >= 24) hi -= 24;
+  return `${String(hi).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+}
+
+const SCHEDULE = [
+  {w:'W1', date:'Dom 13 set', opp:'@ Houston Texans', home:false, t:'13:00'},
+  {w:'W2', date:'Gio 17 set', opp:'vs Detroit Lions', home:true, t:'20:15', ns:true, note:'Home opener – Nuovo Highmark'},
+  {w:'W3', date:'Gio 24 set', opp:'vs L.A. Chargers', home:true, t:'13:00', ns:true},
+  {w:'W4', date:'Dom 27 set', opp:'vs New England Patriots', home:true, t:'13:00', ns:true},
+  {w:'W5', date:'Lun 12 ott', opp:'@ L.A. Rams', home:false, t:'20:15'},
+  {w:'W6', date:'Lun 19 ott', opp:'@ Las Vegas Raiders', home:false, t:'16:25'},
+  {w:'W7', bye:true},
+  {w:'W8', date:'Dom 1 nov', opp:'vs Baltimore Ravens', home:true, t:'13:00', ns:true},
+  {w:'W9', date:'Lun 9 nov', opp:'@ Minnesota Vikings', home:false, t:'20:15'},
+  {w:'W10', date:'Dom 15 nov', opp:'@ NY Jets', home:false, t:'13:00'},
+  {w:'W11', date:'Dom 22 nov', opp:'vs Miami Dolphins', home:true, t:'13:00', ns:true},
+  {w:'W12', date:'Gio 26 nov 🦃', opp:'vs Kansas City Chiefs', home:true, t:'20:20', ns:true, note:'Thanksgiving Night'},
+  {w:'W13', date:'Dom 6 dic', opp:'@ New England Patriots', home:false, t:'16:25'},
+  {w:'W14', date:'Dom 13 dic', opp:'@ Green Bay Packers', home:false, t:'20:20', note:'Sunday Night Football'},
+  {w:'W15', date:'Sab 19 dic', opp:'vs Chicago Bears', home:true, t:'20:20', ns:true, note:'Saturday Night'},
+  {w:'W16', date:'Ven 25 dic 🎄', opp:'@ Denver Broncos', home:false, t:'16:30', note:'Christmas Day'},
+  {w:'W17', date:'Sab 3 gen', opp:'@ Miami Dolphins', home:false, t:'13:00'},
+  {w:'W18', date:'9-10 gen 2027', opp:'vs NY Jets', home:true, t:null, ns:true},
+];
+const PLAYOFFS = [
+  {w:'Wild Card', date:'17-19 gen 2027', opp:'Wildcard Round', note:'Se qualificati'},
+  {w:'Divisional', date:'24-25 gen 2027', opp:'Divisional Round', note:'Se qualificati'},
+  {w:'AFC Champ.', date:'31 gen 2027', opp:'AFC Championship', note:'Se qualificati'},
+  {w:'Super Bowl', date:'14 feb 2027', opp:'Super Bowl LXI', note:'Santa Clara, CA'},
+];
+
+function renderSchedule() {
+  let h = '';
+  SCHEDULE.forEach(g => {
+    if (g.bye) {
+      h += `<div class="bye-row"><div class="week-tag">${g.w}</div><div class="bye-text">BYE WEEK — riposo</div></div>`;
+      return;
+    }
+    const it = etToIt(g.t);
+    const tStr = it ? `<span class="time-col">${it}</span>` : `<span class="time-tbd">TBD</span>`;
+    const hb = g.home !== null ? `<span class="badge ${g.home?'b-home':'b-away'}">${g.home?'casa':'trasferta'}</span>` : '';
+    const nb = g.ns ? `<span class="badge b-new">★ nuovo stadio</span>` : '';
+    const nt = g.note ? `<span style="font-size:9px;color:#C60C30;font-weight:600">${g.note}</span>` : '';
+    h += `<div class="game-row"><div class="week-tag">${g.w}</div><div class="game-body"><div class="opp">${g.opp}</div><div class="meta">${g.date} ${hb}${nb}${nt}</div></div>${tStr}</div>`;
+  });
+  h += `<div class="section-divider">PLAYOFFS 2027 — da confermare</div>`;
+  PLAYOFFS.forEach(g => {
+    h += `<div class="game-row"><div class="week-tag" style="background:#fff3cd;color:#856404">${g.w}</div><div class="game-body"><div class="opp">${g.opp}</div><div class="meta">${g.date} <span class="badge b-playoff">playoff</span> <span style="font-size:9px;color:#888">${g.note}</span></div></div><span class="time-tbd">TBD</span></div>`;
+  });
+  document.getElementById('schedule-container').innerHTML = h;
+  document.getElementById('last-updated').textContent = `Aggiornato: ${new Date().toLocaleDateString('it-IT')} ${new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})}`;
+}
+
+// ── STANDINGS ──
+function renderStandings() {
+  const now = new Date();
+  const seasonStarted = now >= new Date('2026-09-13');
+  let h = '';
+  if (!seasonStarted) {
+    h += `<div class="season-notice"><strong>⏳ Stagione 2026–27 non ancora iniziata</strong>La classifica si aggiornerà automaticamente dall'inizio della stagione (13 settembre 2026). Di seguito i dati della stagione 2025–26 come riferimento.</div>`;
+  }
+  const divisions = [
+    {name:'AFC Est', teams:[
+      {n:'Buffalo Bills', bills:true, c:'#00338D', w:13, l:4, p:'.765'},
+      {n:'Miami Dolphins', c:'#008E97', w:8, l:9, p:'.471'},
+      {n:'NY Jets', c:'#125740', w:5, l:12, p:'.294'},
+      {n:'New England Patriots', c:'#002244', w:4, l:13, p:'.235'},
+    ]},
+    {name:'AFC Nord', teams:[
+      {n:'Baltimore Ravens', c:'#241773', w:11, l:6, p:'.647'},
+      {n:'Pittsburgh Steelers', c:'#FFB612', w:10, l:7, p:'.588'},
+      {n:'Cincinnati Bengals', c:'#FB4F14', w:9, l:8, p:'.529'},
+      {n:'Cleveland Browns', c:'#FF3C00', w:3, l:14, p:'.176'},
+    ]},
+    {name:'AFC Sud', teams:[
+      {n:'Kansas City Chiefs', c:'#E31837', w:15, l:2, p:'.882'},
+      {n:'Houston Texans', c:'#03202F', w:10, l:7, p:'.588'},
+      {n:'Indianapolis Colts', c:'#002C5F', w:8, l:9, p:'.471'},
+      {n:'Jacksonville Jaguars', c:'#006778', w:4, l:13, p:'.235'},
+    ]},
+    {name:'AFC Ovest', teams:[
+      {n:'Denver Broncos', c:'#FB4F14', w:9, l:8, p:'.529'},
+      {n:'L.A. Chargers', c:'#0080C6', w:9, l:8, p:'.529'},
+      {n:'Las Vegas Raiders', c:'#000', w:7, l:10, p:'.412'},
+      {n:'Tennessee Titans', c:'#4B92DB', w:3, l:14, p:'.176'},
+    ]},
+  ];
+  divisions.forEach(d => {
+    h += `<div class="div-hdr">${d.name}</div><table class="std-table"><thead><tr><th>Squadra</th><th>V</th><th>S</th><th>%</th></tr></thead><tbody>`;
+    d.teams.forEach(t => {
+      h += `<tr class="${t.bills?'bills-tr':''}"><td><span class="team-cell"><span class="tdot" style="background:${t.c}"></span>${t.n}</span></td><td>${t.w}</td><td>${t.l}</td><td>${t.p}</td></tr>`;
+    });
+    h += `</tbody></table>`;
+  });
+  if (!seasonStarted) h += `<div style="padding:10px 14px;font-size:10px;color:#aaa;background:#fff;text-align:center">Dati stagione 2025–26 • La classifica 2026–27 si aggiorna da settembre 2026</div>`;
+  document.getElementById('standings-container').innerHTML = h;
+}
+
+// ── STATS ──
+const STATS_2025 = {
+  team: [
+    {val:'13-4', lbl:'Record', rank:'#3 AFC'},
+    {val:'28.5', lbl:'Punti/partita', rank:'#4 NFL'},
+    {val:'372.1', lbl:'Yard totali/gara', rank:'#6 NFL'},
+    {val:'264.3', lbl:'Yard aeree/gara', rank:'#5 NFL'},
+    {val:'107.8', lbl:'Yard a terra/gara', rank:'#12 NFL'},
+    {val:'22', lbl:'Touchdown totali', rank:'stagione reg.'},
+    {val:'18', lbl:'Turnover forzati', rank:'#7 NFL'},
+    {val:'23.1', lbl:'Punti subiti/gara', rank:'#8 NFL'},
+  ],
+  players: [
+    {num:'17', name:'Josh Allen', pos:'Quarterback', stats:'3.731 yard · 28 TD · 6 INT · 101.4 passer rating'},
+    {num:'14', name:'Stefon Diggs', pos:'Wide Receiver', stats:'93 ricezioni · 1.181 yard · 8 TD'},
+    {num:'22', name:'James Cook', pos:'Running Back', stats:'987 yard a terra · 6 TD · 4.4 ypc'},
+    {num:'88', name:'Dawson Knox', pos:'Tight End', stats:'52 ricezioni · 612 yard · 5 TD'},
+    {num:'91', name:'Ed Oliver', pos:'Defensive Tackle', stats:'7.5 sack · 42 tackle · 3 FF'},
+  ]
+};
+
+function loadStats() {
+  const now = new Date();
+  const seasonStarted = now >= new Date('2026-09-13');
+  const notice = seasonStarted
+    ? ''
+    : `<div class="stats-notice">⏳ <strong>Stagione 2026–27 non ancora iniziata.</strong> Dati aggiornati dalla stagione 2025–26. Le statistiche live si attiveranno dal 13 settembre 2026.</div>`;
+
+  let h = notice;
+  h += `<div class="stats-block"><h3><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00338D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Stats di squadra</h3><div class="stat-grid">`;
+  STATS_2025.team.forEach(s => {
+    h += `<div class="stat-item"><div class="stat-val">${s.val}</div><div class="stat-lbl">${s.lbl}</div><div class="stat-rank">${s.rank}</div></div>`;
+  });
+  h += `</div></div>`;
+  h += `<div class="last-updated">Fonte: NFL.com / ESPN • Stagione 2025–26</div>`;
+  document.getElementById('stats-container').innerHTML = h;
+}
+
+// ── TABS ──
+function showTab(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── LOGO (base64 embedded) ──
+async function loadLogo() {
+  try {
+    const data = await window.fs.readFile('image0.jpeg');
+    const bytes = new Uint8Array(data);
+    let bin = '';
+    for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    const b64 = btoa(bin);
+    const url = 'data:image/jpeg;base64,' + b64;
+    document.getElementById('logoImg').src = url;
+    document.getElementById('socialLogo').src = url;
+    // Salva per uso esterno
+    window._IBL_LOGO = url;
+  } catch(e) {
+    // fallback colore
+    ['logoImg','socialLogo'].forEach(id => {
+      const el = document.getElementById(id);
+      el.style.display = 'none';
+      el.parentElement.style.background = '#00338D';
+    });
+  }
+}
+
+// ── CLOCK ──
+function updateClock() {
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+}
+
+// ── INIT ──
+window.addEventListener('load', () => {
+  updateClock();
+  setInterval(updateClock, 30000);
+  renderSchedule();
+  renderStandings();
+  loadStats();
+  loadLogo();
+});
+</script>
+</body>
+</html>
