@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Italian Bills Legion – Countdown</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue:   #00338D;
+    --red:    #C60C30;
+    --white:  #FFFFFF;
+    --light:  #E8EEF8;
+    --dark:   #001A4D;
+    --font-display: 'Bebas Neue', 'Arial Narrow', 'Impact', Arial, sans-serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  html, body {
+    height: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--blue);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100dvh;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Field stripe texture in background */
+  .bg-stripes {
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      180deg,
+      transparent 0px,
+      transparent 58px,
+      rgba(255,255,255,0.025) 58px,
+      rgba(255,255,255,0.025) 60px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Red end zone slash — signature element */
+  .end-zone {
+    position: fixed;
+    bottom: -80px;
+    left: -60px;
+    width: 480px;
+    height: 280px;
+    background: var(--red);
+    transform: rotate(-12deg);
+    opacity: 0.18;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .end-zone-2 {
+    position: fixed;
+    top: -100px;
+    right: -80px;
+    width: 360px;
+    height: 220px;
+    background: var(--red);
+    transform: rotate(-12deg);
+    opacity: 0.12;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .card {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    padding: 36px 32px 40px;
+    width: min(360px, 92vw);
+    text-align: center;
+  }
+
+  /* Logo */
+  .logo-wrap {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: 0 0 0 4px rgba(255,255,255,0.15), 0 8px 32px rgba(0,0,0,0.35);
+  }
+
+  .logo-wrap img {
+    width: 88px;
+    height: 88px;
+    object-fit: contain;
+  }
+
+  /* Club name */
+  .club-name {
+    font-family: var(--font-display);
+    font-size: 22px;
+    letter-spacing: 2.5px;
+    color: var(--light);
+    margin-bottom: 32px;
+    line-height: 1;
+  }
+
+  /* Countdown block */
+  .countdown-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 12px;
+  }
+
+  .days-number {
+    font-family: var(--font-display);
+    font-size: clamp(110px, 28vw, 148px);
+    line-height: 0.85;
+    color: var(--white);
+    text-shadow:
+      6px 6px 0px var(--red),
+      12px 12px 0px rgba(198,12,48,0.25);
+    letter-spacing: -2px;
+    margin-bottom: 4px;
+    transition: opacity 0.3s;
+  }
+
+  .days-word {
+    font-family: var(--font-display);
+    font-size: 28px;
+    letter-spacing: 5px;
+    color: var(--red);
+    margin-bottom: 32px;
+  }
+
+  /* Red divider */
+  .divider {
+    width: 48px;
+    height: 3px;
+    background: var(--red);
+    margin: 0 auto 24px;
+    border-radius: 2px;
+  }
+
+  /* Game info */
+  .game-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .game-matchup {
+    font-family: var(--font-display);
+    font-size: 20px;
+    letter-spacing: 1.5px;
+    color: var(--white);
+    line-height: 1.1;
+  }
+
+  .game-detail {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.5px;
+  }
+
+  /* Today state */
+  .today-msg {
+    font-family: var(--font-display);
+    font-size: 42px;
+    letter-spacing: 3px;
+    color: var(--red);
+    text-shadow: 3px 3px 0 rgba(0,0,0,0.3);
+    margin-bottom: 8px;
+  }
+
+  /* Game day pulse */
+  @keyframes pulse-red {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.6; }
+  }
+  .gameday .days-number {
+    animation: pulse-red 1.4s ease-in-out infinite;
+    color: var(--red);
+    text-shadow: none;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="bg-stripes"></div>
+<div class="end-zone"></div>
+<div class="end-zone-2"></div>
+
+<div class="card" id="card">
+
+  <div class="logo-wrap">
+    <img src="https://framoriconi-hue.github.io/italian-bills-legion/logo.png"
+         alt="Italian Bills Legion"
+         onerror="this.style.display='none'; this.parentNode.innerHTML='<span style=\'font-size:48px\'>🦬</span>'">
+  </div>
+
+  <div class="club-name">Italian Bills Legion</div>
+
+  <div class="countdown-label" id="label">alla prima partita</div>
+
+  <div class="days-number" id="days">–</div>
+  <div class="days-word" id="days-word">GIORNI</div>
+
+  <div class="divider"></div>
+
+  <div class="game-info" id="game-info">
+    <div class="game-matchup" id="matchup"></div>
+    <div class="game-detail" id="detail"></div>
+  </div>
+
+</div>
+
+<script>
+  // Prima partita stagione regolare 2026
+  const GAME = {
+    date: new Date('2026-09-13T13:00:00-04:00'), // 13 set 2026, 13:00 ET
+    matchup: 'Bills @ Houston Texans',
+    detail: 'Dom 13 set 2026 · 19:00 IT · CBS'
+  };
+
+  function update() {
+    const now   = new Date();
+    const diff  = GAME.date - now;
+    const days  = Math.ceil(diff / (1000 * 60 * 60 * 24));
+
+    const daysEl   = document.getElementById('days');
+    const wordEl   = document.getElementById('days-word');
+    const labelEl  = document.getElementById('label');
+    const matchup  = document.getElementById('matchup');
+    const detail   = document.getElementById('detail');
+    const card     = document.getElementById('card');
+
+    matchup.textContent = GAME.matchup;
+    detail.textContent  = GAME.detail;
+
+    if (days < 0) {
+      // Stagione iniziata
+      daysEl.textContent  = '–';
+      wordEl.textContent  = '';
+      labelEl.textContent = 'stagione in corso · GO BILLS!';
+    } else if (days === 0) {
+      // Game day
+      card.classList.add('gameday');
+      daysEl.textContent  = 'OGGI';
+      wordEl.textContent  = '';
+      labelEl.textContent = 'è game day! 🏈';
+    } else {
+      daysEl.textContent  = days;
+      wordEl.textContent  = days === 1 ? 'GIORNO' : 'GIORNI';
+      labelEl.textContent = 'alla prima partita';
+    }
+  }
+
+  update();
+  // Aggiorna ogni ora (basta per un countdown a giorni)
+  setInterval(update, 1000 * 60 * 60);
+</script>
+</body>
+</html>
